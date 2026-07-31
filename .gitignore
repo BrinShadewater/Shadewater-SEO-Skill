@@ -1,0 +1,9 @@
+scripts/__pycache__/
+scripts/*.pyc
+seo-report-*.html
+plan.md
+
+# Generated audit output - 6.4 MB of finished reports. Kept on disk and in backups,
+# excluded from git and from the .skill package (decided 2026-07-25).
+reports/
+security_best_practices_report.md

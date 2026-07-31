@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shadewater SEO"
+  short_description: "Full SEO audits with scripts"
+  default_prompt: "Use $seo to run a full SEO audit for a page, site, or GitHub repository."
