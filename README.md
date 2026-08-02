@@ -1,5 +1,7 @@
 # 🌊 Shadewater SEO
 
+![Licence](https://img.shields.io/badge/licence-MIT-blue?style=flat-square) ![Python](https://img.shields.io/badge/python-3.11%2B-3776ab?style=flat-square) ![Claude Skill](https://img.shields.io/badge/Claude-skill-d97757?style=flat-square) ![Shadewater Labs](https://img.shields.io/badge/Shadewater%20Labs-%E2%9A%97%EF%B8%8F-6b4fa2?style=flat-square)
+
 The SEO audit skill for Shadewater Labs sites — [datagoblin.ca](https://datagoblin.ca),
 shadewaterlabs.com, strangeharvestmovie.com, and whatever ships next. It runs LLM-first
 audits backed by deterministic evidence scripts, then hands you a dark-blue Shadewater
