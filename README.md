@@ -114,6 +114,9 @@ The freshness lint is the reason this skill doesn't quietly rot: every reference
 carries an `Updated:` tag and gets flagged at 90 days. Stale SEO advice is worse than
 no SEO advice.
 
+CI runs the regression tests and the doctor on every pull request and push to `main`,
+and reports the freshness lint alongside them.
+
 ## ⚖️ Rules the audits enforce
 
 The stuff SEO blogs keep getting wrong, hard-coded so the audits can't:

@@ -544,10 +544,23 @@ class SeoSkillTests(unittest.TestCase):
         handoff_doc = project_root / "HANDOFF.md"
         claude_settings = project_root / ".claude" / "settings.json"
 
+        agents_doc = project_root / "AGENTS.md"
+
         self.assertTrue(claude_doc.exists())
+        self.assertTrue(agents_doc.exists())
         self.assertTrue(handoff_doc.exists())
         self.assertTrue(claude_settings.exists())
-        self.assertIn("Shadewater SEO", claude_doc.read_text(encoding="utf-8"))
+        # Since 2026-08-06 CLAUDE.md is a Claude Code import stub ("@AGENTS.md") and
+        # AGENTS.md is the canonical guide. What must hold is that the content Claude
+        # Code loads names the tool: either the stub says so itself, or it imports the
+        # file that does.
+        claude_text = claude_doc.read_text(encoding="utf-8")
+        agents_text = agents_doc.read_text(encoding="utf-8")
+        self.assertIn("Shadewater SEO", agents_text)
+        self.assertTrue(
+            "Shadewater SEO" in claude_text or "@AGENTS.md" in claude_text,
+            "CLAUDE.md neither names the tool nor imports AGENTS.md",
+        )
         self.assertIn("test_seo_skill", handoff_doc.read_text(encoding="utf-8"))
         self.assertIn(".env", claude_settings.read_text(encoding="utf-8"))
 
