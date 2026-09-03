@@ -60,7 +60,7 @@ table lives in [SKILL.md](SKILL.md).
 
 ```bash
 git clone https://github.com/BrinShadewater/Shadewater-SEO-Skill.git
-cd ShadewaterLabs-SEO-Skill
+cd Shadewater-SEO-Skill
 
 # Claude Code (installs to ~/.claude/skills/shadewater-seo)
 bash install.sh --target claude
