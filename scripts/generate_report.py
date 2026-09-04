@@ -1958,6 +1958,12 @@ def generate_html(
     timestamp = data["timestamp"]
     theme = resolve_report_theme(theme_name)
     font_links = theme["font_links"]
+
+    def _esc(value: object) -> str:
+        # Everything below that came from the audited site is untrusted. The
+        # shadewater dashboard already escapes; this branch did not.
+        return html_lib.escape(str(value), quote=True)
+
     title_prefix = html_lib.escape(theme["title_prefix"], quote=True)
     report_title = html_lib.escape(theme["display_name"], quote=True)
     title_lines = theme.get("title_lines") or [theme["display_name"]]
@@ -2049,7 +2055,7 @@ def generate_html(
     issues_html = ""
     for issue in sorted(all_issues, key=lambda x: {"critical": 0, "warning": 1, "info": 2}[x["severity"]]):
         badge_class = issue["severity"]
-        issues_html += f'<div class="issue-item {badge_class}"><span class="issue-badge">{badge_class.upper()}</span> {issue["text"]}</div>\n'
+        issues_html += f'<div class="issue-item {badge_class}"><span class="issue-badge">{badge_class.upper()}</span> {_esc(issue["text"])}</div>\n'
 
     # Build category cards
     category_labels = {
@@ -2098,9 +2104,9 @@ def generate_html(
     # Security details
     security_rows = ""
     for header, value in sec.get("headers_present", {}).items():
-        security_rows += f'<tr><td>{header}</td><td><span class="badge pass">Present</span></td><td class="mono">{value[:60]}</td></tr>'
+        security_rows += f'<tr><td>{_esc(header)}</td><td><span class="badge pass">Present</span></td><td class="mono">{_esc(value[:60])}</td></tr>'
     for header, desc in sec.get("headers_missing", {}).items():
-        security_rows += f'<tr><td>{header}</td><td><span class="badge critical">Missing</span></td><td>{desc}</td></tr>'
+        security_rows += f'<tr><td>{_esc(header)}</td><td><span class="badge critical">Missing</span></td><td>{_esc(desc)}</td></tr>'
 
     # Social meta details
     social_rows = ""
@@ -2109,11 +2115,11 @@ def generate_html(
     for tag in ["og:title", "og:description", "og:image", "og:url", "og:type", "og:site_name"]:
         val = og.get(tag, "")
         status = '<span class="badge pass">✅</span>' if val else '<span class="badge critical">Missing</span>'
-        social_rows += f'<tr><td>{tag}</td><td>{status}</td><td>{val[:60] if val else "—"}</td></tr>'
+        social_rows += f'<tr><td>{_esc(tag)}</td><td>{status}</td><td>{_esc(val[:60]) if val else "—"}</td></tr>'
     for tag in ["twitter:card", "twitter:title", "twitter:description", "twitter:image", "twitter:site"]:
         val = tw.get(tag, "")
         status = '<span class="badge pass">✅</span>' if val else '<span class="badge warning">Missing</span>'
-        social_rows += f'<tr><td>{tag}</td><td>{status}</td><td>{val[:60] if val else "—"}</td></tr>'
+        social_rows += f'<tr><td>{_esc(tag)}</td><td>{status}</td><td>{_esc(val[:60]) if val else "—"}</td></tr>'
 
     # AI Crawlers details
     ai_rows = ""
@@ -2124,17 +2130,17 @@ def generate_html(
             badge = '<span class="badge warning">Unmanaged</span>'
         else:
             badge = '<span class="badge info">Info</span>'
-        ai_rows += f'<tr><td>{crawler}</td><td>{badge}</td><td>{status}</td></tr>'
+        ai_rows += f'<tr><td>{_esc(crawler)}</td><td>{badge}</td><td>{_esc(status)}</td></tr>'
 
     # Broken links details
     broken_rows = ""
     for link in bl.get("broken", [])[:20]:
         status = link.get("status") or link.get("error", "?")
         loc = "Internal" if link.get("is_internal") else "External"
-        broken_rows += f'<tr><td><span class="badge {"critical" if link.get("is_internal") else "warning"}">{loc}</span></td><td class="mono">{status}</td><td class="link-url">{link["url"][:80]}</td><td>{link.get("anchor_text", "")[:40]}</td></tr>'
+        broken_rows += f'<tr><td><span class="badge {"critical" if link.get("is_internal") else "warning"}">{loc}</span></td><td class="mono">{_esc(status)}</td><td class="link-url">{_esc(link["url"][:80])}</td><td>{_esc(link.get("anchor_text", "")[:40])}</td></tr>'
     for link in bl.get("blocked", [])[:20]:
         status = link.get("status") or link.get("error", "?")
-        broken_rows += f'<tr><td><span class="badge info">External</span></td><td class="mono">{status} blocked</td><td class="link-url">{link["url"][:80]}</td><td>{link.get("anchor_text", "")[:40]}</td></tr>'
+        broken_rows += f'<tr><td><span class="badge info">External</span></td><td class="mono">{_esc(status)} blocked</td><td class="link-url">{_esc(link["url"][:80])}</td><td>{_esc(link.get("anchor_text", "")[:40])}</td></tr>'
 
     bl_summary = bl.get("summary", {})
     bl_total = bl_summary.get("total", 0)
@@ -2145,7 +2151,7 @@ def generate_html(
     # Internal links details
     orphan_rows = ""
     for orphan in il.get("orphan_candidates", [])[:15]:
-        orphan_rows += f'<tr><td class="link-url">{orphan["url"][:80]}</td><td>{orphan["incoming_links"]}</td></tr>'
+        orphan_rows += f'<tr><td class="link-url">{_esc(orphan["url"][:80])}</td><td>{orphan["incoming_links"]}</td></tr>'
 
     il_pages = il.get("pages_crawled", 0)
     il_total = il.get("total_internal_links", 0)
@@ -2158,9 +2164,9 @@ def generate_html(
         time_ms = hop.get("time_ms", 0)
         if hop.get("final"):
             icon_c = "pass" if 200 <= status < 300 else "critical"
-            redirect_rows += f'<tr><td>{hop["step"]}</td><td><span class="badge {icon_c}">{status}</span></td><td class="link-url">{hop["url"][:80]}</td><td>{time_ms}ms</td><td>FINAL</td></tr>'
+            redirect_rows += f'<tr><td>{hop["step"]}</td><td><span class="badge {icon_c}">{status}</span></td><td class="link-url">{_esc(hop["url"][:80])}</td><td>{time_ms}ms</td><td>FINAL</td></tr>'
         else:
-            redirect_rows += f'<tr><td>{hop["step"]}</td><td><span class="badge warning">{status}</span></td><td class="link-url">{hop["url"][:80]}</td><td>{time_ms}ms</td><td>{hop.get("redirect_type", "")}</td></tr>'
+            redirect_rows += f'<tr><td>{hop["step"]}</td><td><span class="badge warning">{status}</span></td><td class="link-url">{_esc(hop["url"][:80])}</td><td>{time_ms}ms</td><td>{_esc(hop.get("redirect_type", ""))}</td></tr>'
 
     # Anchor text chart data
     anchor_data = il.get("anchor_texts", {})
@@ -2170,14 +2176,14 @@ def generate_html(
         max_val = max(v for _, v in anchor_items) if anchor_items else 1
         for text, count in anchor_items:
             pct = round(count / max_val * 100)
-            anchor_bars += f'<div class="bar-row"><span class="bar-label">{text[:25]}</span><div class="bar-track"><div class="bar-fill" style="width:{pct}%"></div></div><span class="bar-value">{count}</span></div>'
+            anchor_bars += f'<div class="bar-row"><span class="bar-label">{_esc(text[:25])}</span><div class="bar-track"><div class="bar-fill" style="width:{pct}%"></div></div><span class="bar-value">{count}</span></div>'
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title_prefix} — {domain}</title>
+<title>{title_prefix} — {_esc(domain)}</title>
 <style>
 :root {{
     color-scheme: dark;
@@ -2730,13 +2736,13 @@ tr:hover td {{ background: color-mix(in srgb, var(--accent) 7%, transparent); }}
             <div class="hero-meta">
                 <div class="hero-meta-card">
                     <div class="hero-meta-label">Live URL</div>
-                    <div class="hero-meta-value">{domain}</div>
-                    <div class="hero-meta-detail">{url}</div>
+                    <div class="hero-meta-value">{_esc(domain)}</div>
+                    <div class="hero-meta-detail">{_esc(url)}</div>
                 </div>
                 <div class="hero-meta-card">
                     <div class="hero-meta-label">Audit Grade</div>
                     <div class="hero-meta-value">{grade} / {overall}</div>
-                    <div class="hero-meta-detail">Detected platform: {env_primary}</div>
+                    <div class="hero-meta-detail">Detected platform: {_esc(env_primary)}</div>
                 </div>
             </div>
         </div>

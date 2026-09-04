@@ -146,6 +146,47 @@ class SeoSkillTests(unittest.TestCase):
                 "global-key",
             )
 
+    def test_classic_theme_escapes_site_derived_strings(self) -> None:
+        payload = '<img src=x onerror=alert(1)>'
+        href = '"><script>1</script>'
+        data = {
+            "domain": "example.com",
+            "url": "https://example.com",
+            "timestamp": "2026-03-15T12:00:00",
+            "sections": {
+                "social": {"og_tags": {"og:title": payload}, "twitter_tags": {}},
+                "security": {"headers_present": {}, "headers_missing": {"X-Frame-Options": payload}},
+                "broken_links": {"broken": [{"url": href, "is_internal": True, "status": payload, "anchor_text": payload}]},
+                "internal_links": {"anchor_texts": {payload: 3}, "orphan_candidates": [{"url": href, "incoming_links": 0}]},
+                "redirects": {"chain": [{"step": 1, "status": 301, "url": href, "time_ms": 1, "redirect_type": payload}]},
+            },
+            "environment": {"detected": payload},
+            "environment_fixes": [],
+        }
+        scores = {"overall": 50, "categories": {}, "weights": {}}
+
+        html = generate_report.generate_html(data, scores, theme_name="classic")
+
+        self.assertNotIn(payload, html)
+        self.assertNotIn("<script>1</script>", html)
+        self.assertIn("&lt;img src=x onerror=alert(1)&gt;", html)
+
+    def test_decode_body_caps_a_gzip_bomb(self) -> None:
+        import gzip as _gzip
+        from net_utils import MAX_DECOMPRESSED_BYTES, decode_body
+
+        bomb = _gzip.compress(b"0" * (MAX_DECOMPRESSED_BYTES + 1_000_000))
+        text = decode_body(bomb, {"Content-Encoding": "gzip", "Content-Type": "text/html; charset=utf-8"})
+        self.assertLessEqual(len(text), MAX_DECOMPRESSED_BYTES)
+
+    def test_urllib_redirects_to_private_targets_are_blocked(self) -> None:
+        import urllib.error
+        from net_utils import TrackingRedirectHandler
+
+        handler = TrackingRedirectHandler(max_redirects=5)
+        with self.assertRaises(urllib.error.HTTPError):
+            handler.redirect_request(None, None, 302, "Found", {}, "http://127.0.0.1/admin")
+
     def test_generate_html_defaults_to_shadewater_theme(self) -> None:
         data = {
             "domain": "example.com",
