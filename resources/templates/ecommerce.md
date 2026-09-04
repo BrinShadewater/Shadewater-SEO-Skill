@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 # E-commerce SEO Strategy Template
 
 ## Industry Characteristics
@@ -60,7 +60,7 @@
 
 > **Google Merchant Center Free Listings:** Products can appear in Google Shopping for free. Ensure Product structured data is in the initial server-rendered HTML (not JavaScript-injected) with required properties: `name`, `image`, `price`, `priceCurrency`, `availability`.
 
-> **JS Rendering Note:** Product structured data should be in initial server-rendered HTML — not dynamically injected via JavaScript (per December 2025 Google JS SEO guidance).
+> **JS Rendering Note:** Product structured data should be in initial server-rendered HTML rather than JavaScript-injected. Google's JS SEO documentation (updated December 2025) documents skipped rendering on non-200 pages and canonical/noindex conflicts; it does not explicitly address structured data, so treat this as `Recommended`, not a documented requirement.
 
 ### Product Schema Example
 ```json
@@ -111,9 +111,9 @@
 ## Technical Considerations
 
 ### Pagination
-- Use rel="next"/rel="prev" or load-more
+- Google does not use `rel="next"`/`rel="prev"` for indexing; plain `<a href>` links between pages are what matters
+- Give each paginated page a self-referencing canonical — do not canonicalize page 2+ to the category root, or Google will not index the products only reachable there
 - Ensure all products are crawlable
-- Canonical to main category page
 
 ### Faceted Navigation
 - Noindex filter combinations that create duplicate content

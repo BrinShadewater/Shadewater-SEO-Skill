@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 # Publisher/Media SEO Strategy Template
 
 ## Industry Characteristics
@@ -121,9 +121,9 @@ Publishers face highest E-E-A-T scrutiny.
 
 ### Publisher SEO Updates (2025-2026)
 
-- **Google News automatic inclusion:** Google News no longer accepts manual applications (since March 2025). Inclusion is fully automatic based on Google's content quality criteria. Focus on Google News sitemap markup and consistent, high-quality publishing cadence.
+- **Google News automatic inclusion:** Publisher Center stopped accepting new publications on April 25, 2024, and Google News moved fully to automatically generated publication pages in late March 2025; submitted RSS feeds and web locations are no longer used. Inclusion is automatic based on Google's content and policy criteria. Focus on news sitemap markup and a consistent, high-quality publishing cadence.
 - **KPI shift:** Traffic-based KPIs (sessions, pageviews) are declining in relevance as AI Overviews reduce click-through rates. Leading publishers are shifting to: subscriber conversions, time on page, scroll depth, newsletter signups, AI citation frequency, and revenue per visitor.
-- **Site reputation abuse risk:** Publishers hosting third-party content (coupons, product reviews, affiliate content) under their domain are at high risk. Google penalized Forbes, WSJ, Time, and CNN for this in late 2024. If hosting third-party content, ensure strong editorial oversight and clear first-party involvement.
+- **Site reputation abuse risk:** Publishers hosting third-party content (coupons, product reviews, affiliate content) under their domain are at high risk. After the policy expansion of November 19, 2024, manual actions hit Forbes Advisor, WSJ Buy Side and CNN Underscored days before Black Friday. Google's updated wording treats third-party content as abuse even when the host site provides oversight, so "editorial oversight" is not a defence; the content has to be genuinely first-party.
 
 ## Technical Considerations
 

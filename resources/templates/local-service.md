@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 # Local Service Business SEO Strategy Template
 
 ## Industry Characteristics
@@ -102,17 +102,16 @@
 
 - **Video verification** is now standard — postcard verification has been largely phased out. Prepare for a short video verification process showing the business location or service area.
 - **WhatsApp integration** replaced Google Business Chat (deprecated). Businesses can connect WhatsApp as their primary messaging channel.
-- **Q&A removed from Maps** — replaced by AI-generated answers. Ensure your GBP description, services, and website FAQ are comprehensive, as Google AI uses them to answer queries.
-- **Business hours are a top-5 ranking factor** — "Business is open at time of search" ranked as a top individual factor for the first time (Whitespark 2026 Local Search Ranking Factors Report). Keep hours accurate; consider extended hours if feasible.
-- **Review "Stories" format** — Google Maps now shows review snippets in a swipeable Stories format on mobile. Encourage detailed, descriptive reviews with photos.
+- **Q&A removed from Business Profiles** — Google discontinued the Q&A feature on November 3, 2025, with public removal rolling out from December 3, 2025, replaced by AI-generated contextual answers. Ensure your GBP description, services, and website FAQ are comprehensive, as Google AI draws on them.
+- **Business hours are a top-5 ranking factor** — "Business is open at time of search" ranks #5 among individual local-pack factors in the Whitespark 2026 Local Search Ranking Factors Report; practitioners report rankings slipping in the hour before closing. Keep hours accurate; consider extended hours if feasible.
 
 ### Service Area Business (SAB) Update (June 2025)
 
-Google updated SAB guidelines to **disallow entire states or countries** as service areas. SABs must specify: cities, postal/ZIP codes, or neighborhoods. If you serve an entire metro area, list the major cities within it rather than the state.
+Google's Business Profile guidelines were updated on June 24, 2025 to state "Do not add countries or states as a service area." SABs must specify cities, postal/ZIP codes, or neighborhoods, within roughly two hours' driving time of the base location. If you serve an entire metro area, list the major cities within it rather than the state.
 
 ### AI Visibility for Local Businesses
 
-AI Overviews appear for only ~0.14% of local keywords (March 2025 data) — local SEO faces significantly less AI disruption than other verticals. However, ChatGPT and Perplexity are increasingly used for local recommendations.
+AI Overviews appeared for only ~0.14% of local keywords in March 2025 and ~0.01% by September 2025 (seoClarity), against roughly 13% of queries overall — local SEO faces far less AI Overview disruption than other verticals. AI Mode and assistant-style tools (ChatGPT, Perplexity) are a separate, growing channel for local recommendations. Third-party figures: label `Likely`.
 
 To optimize for AI local visibility:
 - Ensure presence on expert-curated "best of" lists (ranked #1 AI visibility factor in Whitespark 2026 report)

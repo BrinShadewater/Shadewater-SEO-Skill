@@ -7,7 +7,7 @@ description: >
   "Core Web Vitals", "site speed", or "security headers".
 ---
 
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 
 # Technical SEO Audit
 
@@ -40,7 +40,10 @@ As of 2025-2026, AI companies actively crawl the web to train models and power A
 | GPTBot | OpenAI | `GPTBot` | Model training |
 | ChatGPT-User | OpenAI | `ChatGPT-User` | Real-time browsing |
 | ClaudeBot | Anthropic | `ClaudeBot` | Model training |
-| PerplexityBot | Perplexity | `PerplexityBot` | Search index + training |
+| Claude-User | Anthropic | `Claude-User` | Real-time fetches on a user's behalf |
+| Claude-SearchBot | Anthropic | `Claude-SearchBot` | Search-result quality (not training) |
+| PerplexityBot | Perplexity | `PerplexityBot` | Search index only — Perplexity states it is **not** used for model training |
+| Perplexity-User | Perplexity | `Perplexity-User` | Real-time fetches on a user's behalf |
 | Bytespider | ByteDance | `Bytespider` | Model training |
 | Google-Extended | Google | `Google-Extended` | Gemini training (NOT search) |
 | CCBot | Common Crawl | `CCBot` | Open dataset |
@@ -48,7 +51,8 @@ As of 2025-2026, AI companies actively crawl the web to train models and power A
 **Key distinctions:**
 - Blocking `Google-Extended` prevents Gemini training use but does NOT affect Google Search indexing or AI Overviews (those use `Googlebot`)
 - Blocking `GPTBot` prevents OpenAI training but does NOT prevent ChatGPT from citing your content via browsing (`ChatGPT-User`)
-- ~3-5% of websites now use AI-specific robots.txt rules
+- Blocking `PerplexityBot` removes a site from Perplexity's search index; it is not a training opt-out, because Perplexity says the bot does not collect training data
+- Adoption figures for AI-specific robots.txt rules vary by study and sample; do not quote a percentage without naming the study
 
 **Example — selective AI crawler blocking:**
 ```
@@ -73,7 +77,7 @@ Allow: /
 - Canonical tags: self-referencing, no conflicts with noindex
 - Duplicate content: near-duplicates, parameter URLs, www vs non-www
 - Thin content: pages below minimum word counts per type
-- Pagination: rel=next/prev or load-more pattern
+- Pagination: Google does not use `rel="next"`/`rel="prev"` for indexing (confirmed 2019, absent from current docs). Give each paginated page its own self-referencing canonical and plain `<a href>` links between pages; do not canonicalize every page to page 1
 - Hreflang: correct for multi-language/multi-region sites
 - Index bloat: unnecessary pages consuming crawl budget
 
@@ -120,14 +124,14 @@ Allow: /
 - Flag SPA frameworks (React, Vue, Angular) that may cause indexing issues
 - Verify dynamic rendering setup if applicable
 
-#### JavaScript SEO — Canonical & Indexing Guidance (December 2025)
+#### JavaScript SEO — Canonical & Indexing Guidance
 
-Google updated its JavaScript SEO documentation in December 2025 with critical clarifications:
+Google clarified three points in its JavaScript SEO basics documentation on December 15–18, 2025 (page last updated 2026-03-04; changelog entries verified 2026-09-03):
 
-1. **Canonical conflicts:** If a canonical tag in raw HTML differs from one injected by JavaScript, Google may use EITHER one. Ensure canonical tags are identical between server-rendered HTML and JS-rendered output.
-2. **noindex with JavaScript:** If raw HTML contains `<meta name="robots" content="noindex">` but JavaScript removes it, Google MAY still honor the noindex from raw HTML. Serve correct robots directives in the initial HTML response.
-3. **Non-200 status codes:** Google does NOT render JavaScript on pages returning non-200 HTTP status codes. Any content or meta tags injected via JS on error pages will be invisible to Googlebot.
-4. **Structured data in JavaScript:** Product, Article, and other structured data injected via JS may face delayed processing. For time-sensitive structured data (especially e-commerce Product markup), include it in the initial server-rendered HTML.
+1. **Canonical conflicts:** "You shouldn't use JavaScript to change the canonical URL to something else than the URL you specified as the canonical URL in the original HTML." Keep the canonical identical between server-rendered HTML and JS-rendered output.
+2. **noindex with JavaScript:** "When Google encounters the `noindex` tag, it may skip rendering and JavaScript execution, which means using JavaScript to change or remove the robots `meta` tag from `noindex` may not work as expected." Serve the correct robots directive in the initial HTML.
+3. **Non-200 status codes:** "If the HTTP status code is non-200 (for example, on error pages with 404 status code), rendering might be skipped." Content or meta tags injected by JS on error pages may never be seen.
+4. **Structured data in JavaScript:** *Not stated in Google's JS documentation.* Serving Product, Article and other structured data in the initial HTML remains the recommendation here because it removes rendering-queue dependency, but label it `Recommended`, not a documented Google requirement.
 
 **Best practice:** Serve critical SEO elements (canonical, meta robots, structured data, title, meta description) in the initial server-rendered HTML rather than relying on JavaScript injection.
 
@@ -168,13 +172,11 @@ Google updated its JavaScript SEO documentation in December 2025 with critical c
 
 ## Voice Search Optimization
 
-Voice search (Google Assistant, Siri, Alexa, Cortana) selects answers primarily from **Featured Snippets** and requires specific optimization signals.
+Voice search (Google Assistant/Gemini, Siri, Alexa) selects answers primarily from **Featured Snippets** and requires specific optimization signals.
 
 ### Key Facts
-- 90%+ of voice answers are read directly from Featured Snippets
-- 46% of voice searches have local intent
-- Voice results strongly favor pages with TTFB < 2s
-- 80%+ of voice queries come from mobile devices
+- The commonly cited figures (roughly 40% of voice answers from Featured Snippets, 46% local intent, mobile-dominant, fast TTFB favoured) come from third-party studies of 2018–2019 vintage (Backlinko, BrightLocal). No provider publishes voice-answer statistics. Label any of them `Hypothesis` in a report and do not present them as current measurements.
+- Cortana was retired by Microsoft in 2023; do not list it as a target.
 
 ### Checklist
 
@@ -204,12 +206,11 @@ Voice search (Google Assistant, Siri, Alexa, Cortana) selects answers primarily 
 
 | Platform | Index Source | Primary Optimization |
 |----------|-------------|---------------------|
-| **Google Assistant** | Google index | Featured Snippet ownership, TTFB < 2s, `speakable` |
-| **Siri** | Bing (Apple) | Bing Webmaster Tools submission, Featured Snippet on Bing |
-| **Alexa** | Bing | Featured Snippet, Bing indexed content |
-| **Cortana** | Bing | Featured Snippet, Bing Webmaster Tools |
+| **Google Assistant / Gemini** | Google index | Featured Snippet ownership, fast TTFB, `speakable` |
+| **Siri** | Google (web results since September 2017; image results from Bing) | Same as Google Search |
+| **Alexa** | Bing | Featured Snippet, Bing indexed content, Bing Webmaster Tools |
 
-> **Note**: For Siri and Alexa, submit your site via **Bing Webmaster Tools** (separate from Google Search Console). Bing still powers major voice engines.
+> **Note**: For Alexa, submit your site via **Bing Webmaster Tools** (separate from Google Search Console). Siri's web answers come from Google, not Bing — the older "Siri = Bing" advice is out of date.
 
 ## Execution Plan
 

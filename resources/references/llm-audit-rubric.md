@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 
 # LLM Audit Rubric
 
