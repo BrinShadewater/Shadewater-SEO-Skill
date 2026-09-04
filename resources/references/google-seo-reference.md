@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 # Google SEO Quick Reference
 
 Primary source checked: https://developers.google.com/search/docs/fundamentals/seo-starter-guide
@@ -60,7 +60,7 @@ Google evaluates content quality through the E-E-A-T framework:
 
 > **YMYL Note**: "Your Money or Your Life" topics (health, finance, safety, legal) are held to the highest E-E-A-T standards. Inaccurate YMYL content can cause real-world harm, so Google applies stricter quality thresholds.
 
-> **December 2025 Update**: E-E-A-T evaluation now extends to ALL competitive queries, not just YMYL topics. Every page competing for ranking is assessed on these signals.
+> **December 2025 core update (rolled out 2025-12-11 to 2025-12-29)**: Google's own announcement called it "a regular update designed to better surface relevant, satisfying content." The widely repeated claim that E-E-A-T scrutiny now extends to *all* competitive queries comes from third-party post-rollout analyses, not from Google. Treat it as `Likely`, label it as third-party, and do not cite it as Google policy.
 
 ---
 
@@ -101,13 +101,14 @@ Measured at the 75th percentile of real user data (field data).
 - Do not mark up content that is misleading or hidden from users
 - Keep schema current — update when page content changes
 
-### Deprecated/Restricted Types (as of Feb 2026)
-- **HowTo**: Rich results removed (September 2023)
-- **FAQ**: Restricted to government and healthcare authority sites (August 2023)
-- **SpecialAnnouncement**: Deprecated (July 31, 2025)
-- **CourseInfo, EstimatedSalary, LearningVideo**: Retired (June 2025)
-- **ClaimReview**: Retired (June 2025)
-- **VehicleListing**: Retired (June 2025)
+### Deprecated/Retired Types (per the Search Central changelog, checked 2026-09-03)
+- **FAQ**: Restricted to government/health sites from August 2023; **no longer shown at all since May 7, 2026**, and the documentation has since been removed. Never recommend FAQPage markup for rich results.
+- **HowTo**: Rich results removed, documentation removed September 14, 2023
+- **SpecialAnnouncement**: Deprecated from July 31, 2025; documentation removed September 9, 2025
+- **CourseInfo, EstimatedSalary, LearningVideo, VehicleListing**: Deprecation banners June 12, 2025; documentation removed September 9, 2025
+- **ClaimReview**: Deprecation banner June 12, 2025
+- **Practice Problem**: Deprecation notice November 5, 2025; documentation removed January 6, 2026
+- **EnergyConsumptionDetails**: Replaced by **Certification** (announced October 3, 2024; merchant listing docs updated April 24, 2025)
 
 ---
 

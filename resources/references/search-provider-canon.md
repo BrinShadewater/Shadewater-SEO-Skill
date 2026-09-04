@@ -1,4 +1,4 @@
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 
 # Search Provider Canon
 
@@ -9,11 +9,11 @@ Use official search-provider documentation before third-party SEO claims. When g
 | Provider | Primary docs | Use for |
 |---|---|---|
 | Google | https://developers.google.com/search/docs | General SEO, Search Essentials, crawling/indexing, structured data, snippets, page experience, Search Console, ecommerce, international SEO, Google AI Search guidance. |
-| Bing / Microsoft | https://www.bing.com/webmasters/help/guidelines-30fba23a and https://support.microsoft.com/en-us/bing/how-bing-delivers-search-results | Bing crawling/indexing, ranking guidance, Bing Webmaster Tools, AI Performance, IndexNow workflows. |
+| Bing / Microsoft | https://www.bing.com/webmasters/help/webmaster-guidelines-30fba23a and https://support.microsoft.com/en-us/bing/how-bing-delivers-search-results | Bing crawling/indexing, ranking guidance, Bing Webmaster Tools, AI Performance, IndexNow workflows. |
 | IndexNow | https://www.indexnow.org/documentation | Faster URL change notification for participating engines. |
 | Yandex | https://yandex.ru/support/webmaster/en/recommendations/intro | Regional SEO for Yandex markets, content quality, indexing, snippets, site structure, and usability. |
 | Naver | https://searchadvisor.naver.com/guide | Korean-market search visibility, Search Advisor setup, crawling/indexing, and site verification. |
-| DuckDuckGo | https://duckduckgo.com/help/webmasters | Crawler identity, webmaster contact paths, and general inclusion behavior. DuckDuckGo does not publish a full SEO playbook comparable to Google/Bing. |
+| DuckDuckGo | https://duckduckgo.com/duckduckbot | DuckDuckBot identity, user agent, IP verification list, and the contact path for crawl concerns. (The old `/help/webmasters` URL now redirects to generic help.) DuckDuckGo does not publish a full SEO playbook comparable to Google/Bing. |
 | Baidu | Baidu Search Resource Platform | Chinese-market SEO requires official Chinese-language review. Do not rely on weak secondary English summaries for client-critical recommendations. |
 
 ## Documentation Layers
@@ -51,4 +51,5 @@ When providers differ, report the difference instead of smoothing it away. Examp
 - Prefer provider docs, official blogs, and webmaster tooling docs.
 - Use third-party SEO studies only as context, never as hard requirements.
 - Include source URLs and last-reviewed dates in new reference files.
+- All URLs in this table resolved with HTTP 200 on 2026-09-03; the Bing guidelines slug and the DuckDuckGo page were updated to their current locations in that check.
 - If a source cannot be verified from official documentation, label the recommendation `Hypothesis` or `Experimental`.

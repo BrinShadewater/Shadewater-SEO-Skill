@@ -1,11 +1,11 @@
 name: CI
 
 # The README's Verification section, run for every change instead of by whoever
-# remembers. The regression suite and the environment doctor block. The freshness
-# lint is reported but does not block yet: it flags reference docs older than 90
-# days by design, and several are past that today. Flip `continue-on-error` off
-# once a review pass has brought them current — a gate that is red on arrival
-# only teaches people to ignore red.
+# remembers. All three steps block, including the freshness lint: it flags reference
+# docs older than 90 days by design, so when it goes red the fix is a real review of
+# the doc against its primary source, then bumping its Updated tag — never the tag
+# alone. (It ran as a warning until the 2026-09-03 review pass brought every doc
+# current.)
 
 on:
   pull_request:
@@ -29,6 +29,5 @@ jobs:
         run: python -m unittest test_seo_skill
       - name: Environment doctor
         run: python scripts/doctor.py
-      - name: Doc freshness lint (warns only, see header)
-        continue-on-error: true
+      - name: Doc freshness lint
         run: python scripts/lint_freshness.py

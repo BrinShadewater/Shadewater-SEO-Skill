@@ -6,7 +6,7 @@ description: >
   "generate sitemap", "sitemap issues", or "XML sitemap".
 ---
 
-<!-- Updated: 2026-05-17 -->
+<!-- Updated: 2026-09-03 -->
 
 # Sitemap Analysis & Generation
 
