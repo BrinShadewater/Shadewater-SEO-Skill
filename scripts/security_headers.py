@@ -111,9 +111,10 @@ def check_security_headers(url: str, timeout: int = 15) -> dict:
     }
 
     try:
+        # Only the headers are read here; stream so the body is never downloaded.
         resp = requests.get(url, timeout=timeout, headers={
             "User-Agent": "Mozilla/5.0 (compatible; SEOSkill/1.0)"
-        }, allow_redirects=True)
+        }, allow_redirects=True, stream=True)
 
         # Check HTTPS
         if resp.url.startswith("https://"):
@@ -125,6 +126,7 @@ def check_security_headers(url: str, timeout: int = 15) -> dict:
 
         # Check each security header
         response_headers = {k.lower(): v for k, v in resp.headers.items()}
+        resp.close()
 
         for header_key, header_info in SECURITY_HEADERS.items():
             if header_key in response_headers:

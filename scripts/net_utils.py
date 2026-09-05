@@ -10,7 +10,13 @@ import urllib.error
 import urllib.request
 import zlib
 from email.message import Message
-from urllib.parse import urlparse
+from io import BytesIO
+from urllib.parse import urljoin, urlparse
+
+# Bodies are read for HTML analysis, never streamed to disk; anything past this is
+# not a web page we can audit and is exactly what a gzip bomb looks like.
+MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+MAX_DECOMPRESSED_BYTES = 20 * 1024 * 1024
 
 
 DEFAULT_HEADERS = {
@@ -84,11 +90,12 @@ def decode_body(body: bytes, headers: Message | dict | None) -> str:
 
     normalized_encoding = content_encoding.lower().strip()
     try:
+        # Cap the DECOMPRESSED size too: a 10 MB gzip body can expand to 10 GB.
         if "gzip" in normalized_encoding:
-            body = gzip.decompress(body)
+            body = gzip.GzipFile(fileobj=BytesIO(body)).read(MAX_DECOMPRESSED_BYTES)
         elif "deflate" in normalized_encoding:
-            body = zlib.decompress(body)
-    except OSError:
+            body = zlib.decompressobj().decompress(body, MAX_DECOMPRESSED_BYTES)
+    except (OSError, zlib.error, EOFError):
         pass
 
     for encoding in (charset, "utf-8", "latin-1"):
@@ -112,6 +119,12 @@ class TrackingRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[override]
         if len(self.redirect_chain) >= self.max_redirects:
             raise urllib.error.HTTPError(newurl, code, f"Too many redirects (max {self.max_redirects})", headers, fp)
+        # The first hop was validated; each redirect target must be too, or a public
+        # URL that 302s to 127.0.0.1 or the metadata service gets fetched anyway.
+        try:
+            validate_public_url(newurl)
+        except ValueError as exc:
+            raise urllib.error.HTTPError(newurl, 403, f"Redirect blocked: {exc}", headers, fp) from exc
         self.redirect_chain.append(newurl)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
@@ -135,19 +148,50 @@ def _fetch_with_requests(
 
     result = build_fetch_result(url)
     session = requests.Session()
-    session.max_redirects = max_redirects
-    response = session.get(
-        url,
-        headers=headers,
-        timeout=timeout,
-        allow_redirects=follow_redirects,
-    )
-    result["url"] = response.url
+    # Follow redirects by hand so every hop goes through validate_public_url;
+    # requests' own follower would happily land on a private address.
+    current = url
+    chain: list[str] = []
+    response = None
+    for _ in range(max_redirects + 1):
+        response = session.get(
+            current,
+            headers=headers,
+            timeout=timeout,
+            allow_redirects=False,
+            stream=True,
+        )
+        location = response.headers.get("Location")
+        if follow_redirects and response.is_redirect and location:
+            response.close()
+            chain.append(current)
+            current = validate_public_url(urljoin(current, location))
+            continue
+        break
+    else:
+        raise requests.exceptions.TooManyRedirects(f"Too many redirects (max {max_redirects})")
+    assert response is not None
+
+    chunks: list[bytes] = []
+    read = 0
+    for chunk in response.iter_content(chunk_size=64 * 1024):
+        chunks.append(chunk)
+        read += len(chunk)
+        if read > MAX_RESPONSE_BYTES:
+            result["truncated"] = True
+            break
+    response.close()
+    body = b"".join(chunks)[:MAX_RESPONSE_BYTES]
+
+    result["url"] = current
     result["status_code"] = response.status_code
-    result["content"] = response.text
     result["headers"] = dict(response.headers)
-    if response.history:
-        result["redirect_chain"] = [item.url for item in response.history]
+    # requests already inflated Content-Encoding for us; decode text only.
+    try:
+        result["content"] = body.decode(response.encoding or "utf-8")
+    except (UnicodeDecodeError, LookupError):
+        result["content"] = body.decode("utf-8", errors="replace")
+    result["redirect_chain"] = chain
     return result
 
 
@@ -168,7 +212,10 @@ def _fetch_with_urllib(
 
     try:
         with opener.open(request, timeout=timeout) as response:
-            body = response.read()
+            body = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(body) > MAX_RESPONSE_BYTES:
+                body = body[:MAX_RESPONSE_BYTES]
+                result["truncated"] = True
             result["url"] = response.geturl()
             result["status_code"] = response.getcode()
             result["headers"] = dict(response.headers.items())
@@ -215,6 +262,13 @@ def fetch_public_url(
         errors.append("requests not installed")
     except Exception as exc:
         errors.append(str(exc))
+        # A blocked target (ValueError) or a timeout is an answer, not a reason to
+        # hit the host again with a second client — that doubled every failing
+        # audit's cost and every slow host's wait.
+        if isinstance(exc, ValueError) or "Timeout" in type(exc).__name__:
+            result = build_fetch_result(normalized_url)
+            result["error"] = str(exc)
+            return result
 
     try:
         return _fetch_with_urllib(
