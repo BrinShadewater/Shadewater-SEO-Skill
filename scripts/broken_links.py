@@ -70,6 +70,36 @@ def extract_links(html: str, base_url: str) -> list:
     return links
 
 
+MAX_REDIRECT_HOPS = 10
+
+
+def request_validating_redirects(method: str, url: str, timeout: int, stream: bool = False):
+    """Issue a request and follow redirects by hand, validating every hop.
+
+    `allow_redirects=True` let `requests` follow a public URL to a private one
+    (127.0.0.1, 10.x, the cloud metadata address) with no check, the same hole
+    net_utils closed for page fetches. Each Location goes through
+    validate_public_url, which raises ValueError on a private target; the final
+    response carries the hops in `.history` the way `requests` would have.
+    """
+    history = []
+    current = url
+    for _ in range(MAX_REDIRECT_HOPS + 1):
+        resp = requests.request(method, current, timeout=timeout, headers=HEADERS,
+                                allow_redirects=False, stream=stream)
+        location = resp.headers.get("Location")
+        if resp.status_code in (301, 302, 303, 307, 308) and location:
+            history.append(resp)
+            resp.close()
+            current = validate_public_url(urljoin(current, location), default_scheme="http")
+            if len(history) > MAX_REDIRECT_HOPS:
+                break
+            continue
+        resp.history = history
+        return resp
+    raise requests.exceptions.TooManyRedirects(f"Exceeded {MAX_REDIRECT_HOPS} redirects")
+
+
 def check_link(link: dict, timeout: int = 10) -> dict:
     """Check a single link's HTTP status."""
     url = link["url"]
@@ -77,13 +107,11 @@ def check_link(link: dict, timeout: int = 10) -> dict:
 
     try:
         url = validate_public_url(url, default_scheme="http")
-        resp = requests.head(url, timeout=timeout, headers=HEADERS,
-                             allow_redirects=True)
+        resp = request_validating_redirects("HEAD", url, timeout)
 
         # Some servers reject HEAD, fall back to GET
         if resp.status_code == 405:
-            resp = requests.get(url, timeout=timeout, headers=HEADERS,
-                                allow_redirects=True, stream=True)
+            resp = request_validating_redirects("GET", url, timeout, stream=True)
 
         result["status"] = resp.status_code
         result["response_time_ms"] = round(resp.elapsed.total_seconds() * 1000)
@@ -142,7 +170,7 @@ def check_broken_links(url: str, internal_only: bool = False,
     # Fetch page
     try:
         url = validate_public_url(url)
-        resp = requests.get(url, timeout=15, headers=HEADERS)
+        resp = request_validating_redirects("GET", url, 15)
         if resp.status_code != 200:
             result["error"] = f"Failed to fetch page: HTTP {resp.status_code}"
             return result

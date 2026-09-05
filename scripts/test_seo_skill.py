@@ -407,6 +407,27 @@ class SeoSkillTests(unittest.TestCase):
             max_redirects=2,
         )
 
+    def test_broken_links_refuse_a_redirect_to_a_private_target(self) -> None:
+        """A public link that 302s to 127.0.0.1 is reported blocked, never fetched."""
+        hop = mock.Mock(status_code=302, headers={"Location": "http://127.0.0.1/admin"})
+        with mock.patch.object(broken_links.requests, "request", return_value=hop) as request:
+            result = broken_links.check_link({"url": "https://example.com/go"})
+        self.assertEqual(result["error"], "blocked_private_target")
+        self.assertEqual(request.call_count, 1, "the private hop must not be requested")
+
+    def test_broken_links_record_public_redirect_hops(self) -> None:
+        hop = mock.Mock(status_code=301, headers={"Location": "https://example.com/new"})
+        final = mock.Mock(status_code=200, headers={}, url="https://example.com/new")
+        final.elapsed.total_seconds.return_value = 0.05
+        with mock.patch.object(broken_links.requests, "request", side_effect=[hop, final]) as request:
+            result = broken_links.check_link({"url": "https://example.com/old"})
+        self.assertEqual(result["status"], 200)
+        self.assertEqual(result["redirect"]["hops"], 1)
+        self.assertEqual(result["redirect"]["codes"], [301])
+        self.assertEqual(result["redirect"]["to"], "https://example.com/new")
+        for call in request.call_args_list:
+            self.assertFalse(call.kwargs["allow_redirects"], "requests must never follow on its own")
+
     def test_broken_links_treats_external_403_as_blocked(self) -> None:
         page_response = mock.Mock(status_code=200, text='<a href="https://x.com/brinshadewater">X</a>')
         blocked_link = {
