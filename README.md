@@ -12,6 +12,10 @@ This started life as a fork (see [Attribution](#-attribution)) and has since gro
 report generator, branding, test suite, and workflow. It installs into Claude Code and
 Codex as the `shadewater-seo` skill.
 
+Try the [Shadewater Labs crawler-access walkthrough](https://shadewaterlabs.com/projects/seo-audit-example#run-this-check)
+for two copyable commands that check `robots.txt` and test how a public page responds
+to a request using the `OAI-SearchBot` user agent.
+
 The house rule: **no finding without evidence.** Every claim gets a confidence label —
 `Confirmed`, `Likely`, or `Hypothesis` — and anything a script can verify, a script
 verifies. SEO folklore doesn't make it into the report.
